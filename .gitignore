@@ -1,0 +1,10 @@
+Students/.gradle
+Students/.settings
+Teacher/.gradle
+Teacher/.settings
+Eureka/.gradle
+Eureka/.settings
+Zuul/.gradle
+Zuul/.settings
+.classpath
+.project

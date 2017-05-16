@@ -1,0 +1,46 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+apply plugin: 'spring-boot'
+
+
+buildscript {
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:" + springBootVersion)
+    }
+
+    repositories {
+		mavenCentral()
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Micro Services Demo', 'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		mavenBom ':spring-cloud-dependencies:Camden.SR7'
+	}
+}
+
+dependencies {
+
+    compile 'org.springframework.boot:spring-boot-starter-parent:' + springBootVersion,
+            'org.springframework.boot:spring-boot-starter-test:' + springBootVersion,
+			'org.springframework.boot:spring-boot-starter-actuator:' + springBootVersion,
+            'org.springframework.boot:spring-boot-starter-data-mongodb:' + springBootVersion,
+			'org.springframework.cloud:spring-cloud-starter-eureka:' + springCloudStarterEurekaVersion,
+            'org.springframework.cloud:spring-cloud-starter-eureka-server:' + springCloudStarterEurekaVersion,
+            'org.springframework.cloud:spring-cloud-starter-hystrix-dashboard:' + springCloudStarterEurekaVersion,
+			'org.springframework.cloud:spring-cloud-starter-zuul:' + springCloudStarterEurekaVersion
+
+    testCompile 'junit:junit:4.+'
+}
