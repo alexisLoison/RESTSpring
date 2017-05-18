@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,21 +14,26 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.netflix.discovery.DiscoveryClient;
+import com.netflix.discovery.DiscoveryManager;
 
 import com.microservices.student.model.Student;
 import com.microservices.student.repository.StudentRepository;
+import com.microservices.student.configuration.config;
 
 @RestController
 @RequestMapping("/student")
+@FeignClient("teacher")
 public class StudentController {
+	@Autowired
 	private RestTemplate restTemplate;
-	private DiscoveryClient discoveryClient;	
+	
+	DiscoveryClient discoveryClient;	
+	
 	@Autowired
 	StudentRepository studentRepository;
-	//@Autowired
 
-	//@Autowired
 
+	
 	
 	//voir http://ippon.developpez.com/tutoriels/spring/microservices-netflixoss/
 	//String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
@@ -51,17 +57,31 @@ public class StudentController {
 		Student result = studentRepository.save(student);//we add the student with the mark updated
 		return result;
 	}
+	
 	@RequestMapping(method = RequestMethod.GET, value="/teacher")
-	public String setTeacher(/*@PathVariable String studentId*/){
-		String teacherUrl = discoveryClient.getNextServerFromEureka("TEACHER", false).getHomePageUrl();
-		String url = teacherUrl + "/Random";
-		//return restTemplate.getForObject(url, String.class);
-		return teacherUrl;
+	public String getTeacher(){
+		discoveryClient = DiscoveryManager.getInstance().getDiscoveryClient();
+		String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
+		String url = teacherUrl + "teacher/Random";
+		String teacherName = restTemplate.exchange("http://localhost:8765/teacher/teacher/Random", HttpMethod.GET,null,String.class).getBody();
+		//error: No instance for Localhost
+		//tried with url instead of "http://localhost:8765/teacher/teacher/Random": no instance for docker-machine
+		return teacherName;
+	}
+	
+	//@RequestMapping(method = RequestMethod.GET, value="/teacher")
+	//public String setTeacher(/*@PathVariable String studentId*/){
+	/*	restTemplate = new RestTemplate();
+		discoveryClient = DiscoveryManager.getInstance().getDiscoveryClient();
+		String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
+		String url = teacherUrl + "teacher/Random";
+		return restTemplate.getForObject(teacherUrl, String.class);
+		//return teacherUrl;
 		//RestTemplate restTemplate = new RestTemplate();
 		//return restTemplate.exchange("http://localhost:27001/teacher/Random", HttpMethod.GET, null, String.class).getBody();
 		//studentRepository.findOne(studentId).setTeacher();
 		//return studentRepository.findOne(studentId).getTeacher();
-	}
+	}*/
 	@RequestMapping(method = RequestMethod.GET, value="/{studentId}") //We Use the Id returned by the POST method to look for a student
 	public Student get(@PathVariable String studentId){
 		return studentRepository.findOne(studentId);

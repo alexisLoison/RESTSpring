@@ -25,16 +25,12 @@ import com.microservices.teacher.model.Student;
 @RequestMapping("/teacher")
 public class teacherController {
 	private DiscoveryClient dc;
-	private RestTemplate rt;
+	
+	//@Autowired
+	//private RestTemplate rt;
+	
 	@Autowired
 	teacherRepository teacherRepository;
-	
-	//@Autowired
-	
-	//@Autowired
-	
-	
-	
 	
 	@RequestMapping(method = RequestMethod.POST)
 	public teacher create(@RequestBody teacher teacher){
@@ -59,12 +55,12 @@ public class teacherController {
 	}*/
 	//or
 	
-	@RequestMapping(method = RequestMethod.GET, value="/{teacherId}/students")
+	/*@RequestMapping(method = RequestMethod.GET, value="/{teacherId}/students")
 	public List<Student> getStudents(@PathVariable String teacherId){
 		String url = dc.getNextServerFromEureka("student", false).getHomePageUrl();
 		ResponseEntity<List<Student>> students = rt.exchange(url,HttpMethod.GET,null,new ParameterizedTypeReference<List<Student>>(){});
 		return students.getBody();
-	}
+	}*/
 	 
 	
 	@RequestMapping(method = RequestMethod.GET, value="/")
