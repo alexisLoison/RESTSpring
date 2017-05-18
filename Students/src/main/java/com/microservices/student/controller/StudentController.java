@@ -63,7 +63,7 @@ public class StudentController {
 		discoveryClient = DiscoveryManager.getInstance().getDiscoveryClient();
 		String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
 		String url = teacherUrl + "teacher/Random";
-		String teacherName = restTemplate.exchange("http://localhost:8765/teacher/teacher/Random", HttpMethod.GET,null,String.class).getBody();
+		String teacherName = restTemplate.exchange("http://teacher/teacher/Random", HttpMethod.GET,null,String.class).getBody();
 		//error: No instance for Localhost
 		//tried with url instead of "http://localhost:8765/teacher/teacher/Random": no instance for docker-machine
 		return teacherName;
