@@ -40,7 +40,6 @@ public class StudentController {
 	
 	@RequestMapping(method = RequestMethod.POST)//We fill student dataBase with the datas we post through the method, and save it in our repository
 	public Student create(@RequestBody Student student){
-		
 		Student result = studentRepository.save(student);
 		return result;
 	}
@@ -96,6 +95,30 @@ public class StudentController {
 			return studentRepository.findOne(studentId);
 	}
 	
+	@RequestMapping(method = RequestMethod.POST, value="/AutoSetTeachers")
+	public int setTeachers(@RequestBody Student student){
+		List<Student> allStudents = getAll();
+		String studentId;
+		int i;
+		for(i=0;i<allStudents.size();i++){
+			if(allStudents.get(i).getTeacher() == null){
+				studentId = allStudents.get(i).getId();
+				String firstName=studentRepository.findOne(studentId).getFirstName();//we save the current datas from the student DB
+				String lastName=studentRepository.findOne(studentId).getLastName();
+				int Year=studentRepository.findOne(studentId).getYear();
+				int mark=studentRepository.findOne(studentId).getMark();
+				student.setId(studentId);
+				student.setFirstName(firstName);
+				student.setLastName(lastName);
+				student.setYear(Year);
+				student.setMark(mark);
+				student.setTeacher(getRandomTeacher());
+				studentRepository.save(student);
+			}
+		}
+		return studentRepository.findAll().size();
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value="/{studentId}") //We Use the Id returned by the POST method to look for a student
 	public Student get(@PathVariable String studentId){
 		return studentRepository.findOne(studentId);
@@ -119,5 +142,9 @@ public class StudentController {
 	public List<Student> getAll(){
 		return studentRepository.findAll();
 	}
-	
+	@RequestMapping(method = RequestMethod.POST, value = "/clear")
+	public List<Student> reset(){
+		studentRepository.deleteAll();
+		return studentRepository.findAll();
+	}
 }

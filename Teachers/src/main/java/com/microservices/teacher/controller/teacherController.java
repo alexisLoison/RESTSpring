@@ -57,19 +57,21 @@ public class teacherController {
 	
 	@RequestMapping(method = RequestMethod.POST, value="/{teacherId}/students")
 	public teacher getStudents(@PathVariable String teacherId, @RequestBody teacher teacher){
-		String teacherName=teacherRepository.findOne(teacherId).getName();
-		ResponseEntity<List<Student>> students = rt.exchange("http://student/student/teacherSearch/{teacherName}", HttpMethod.GET,null,new ParameterizedTypeReference<List<Student>>(){},teacherName);
-		List<Student> studentsList = students.getBody();
-		//error: No instance for Localhost
-		//tried with url instead of "http://localhost:8765/teacher/teacher/Random": no instance for docker-machine
-		String name=teacherRepository.findOne(teacherId).getName();//we save the current datas from the student DB
-		teacher.setName(name);
-		teacher.setStudents(studentsList);
-		teacherRepository.delete(teacherId);//We delete the current student
-		teacher result = teacherRepository.save(teacher);//we add the student with the mark updated
-		return result;
+		if(teacherRepository.findOne(teacherId).getStudents() == null){
+			String teacherName=teacherRepository.findOne(teacherId).getName();
+			ResponseEntity<List<Student>> students = rt.exchange("http://student/student/teacherSearch/"+ teacherName, HttpMethod.GET,null,new ParameterizedTypeReference<List<Student>>(){});
+			List<Student> studentsList = students.getBody();
+			String name=teacherRepository.findOne(teacherId).getName();//we save the current datas from the student DB
+			teacher.setName(name);
+			teacher.setStudents(studentsList);
+			teacherRepository.delete(teacherId);//We delete the current student
+			teacher result = teacherRepository.save(teacher);//we add the student with the mark updated
+			return result;
+		}else
+			return teacherRepository.findOne(teacherId);
 	}
 	 
+
 	
 	@RequestMapping(method = RequestMethod.GET, value="/")
 	public List<teacher> getAll(){
