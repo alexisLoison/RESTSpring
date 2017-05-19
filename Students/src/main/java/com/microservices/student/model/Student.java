@@ -66,7 +66,7 @@ public class Student {
 	public void setTeacher(String name){
 		this.teacherName=name;
 	}
-/*	public void setTeacher(){
+	//public void setTeacher(){
 		//final String username = "";//fill with your name
 		//final String password = "";//fill with your password
 		//final String proxyUrl = "";//fill with the url proxy
@@ -80,10 +80,10 @@ public class Student {
 		clientBuilder.setProxy(myProxy).setDefaultCredentialsProvider(credsProvider).disableCookieManagement();
 		HttpClient httpClient = clientBuilder.build();
 		HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
-		RestTemplate restTemplate = new RestTemplate();//fill with factory if needed
+		RestTemplate restTemplate = new RestTemplate();*///fill with factory if needed
 		//this.teacherName = restTemplate.getForObject("http://localhost:8080/teacher/Random", String.class);
-		this.teacherName = restTemplate.exchange("http://localhost:27001/teacher/Random", HttpMethod.GET, null, String.class).getBody();
-	}*/
+		//this.teacherName = restTemplate.exchange("http://localhost:27001/teacher/Random", HttpMethod.GET, null, String.class).getBody();
+//	}
 	public String getTeacher(){
 		return teacherName;
 	}

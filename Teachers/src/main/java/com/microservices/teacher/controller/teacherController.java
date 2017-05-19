@@ -26,8 +26,8 @@ import com.microservices.teacher.model.Student;
 public class teacherController {
 	private DiscoveryClient dc;
 	
-	//@Autowired
-	//private RestTemplate rt;
+	@Autowired
+	private RestTemplate rt;
 	
 	@Autowired
 	teacherRepository teacherRepository;
@@ -55,12 +55,20 @@ public class teacherController {
 	}*/
 	//or
 	
-	/*@RequestMapping(method = RequestMethod.GET, value="/{teacherId}/students")
-	public List<Student> getStudents(@PathVariable String teacherId){
-		String url = dc.getNextServerFromEureka("student", false).getHomePageUrl();
-		ResponseEntity<List<Student>> students = rt.exchange(url,HttpMethod.GET,null,new ParameterizedTypeReference<List<Student>>(){});
-		return students.getBody();
-	}*/
+	@RequestMapping(method = RequestMethod.POST, value="/{teacherId}/students")
+	public teacher getStudents(@PathVariable String teacherId, @RequestBody teacher teacher){
+		String teacherName=teacherRepository.findOne(teacherId).getName();
+		ResponseEntity<List<Student>> students = rt.exchange("http://student/student/teacherSearch/{teacherName}", HttpMethod.GET,null,new ParameterizedTypeReference<List<Student>>(){},teacherName);
+		List<Student> studentsList = students.getBody();
+		//error: No instance for Localhost
+		//tried with url instead of "http://localhost:8765/teacher/teacher/Random": no instance for docker-machine
+		String name=teacherRepository.findOne(teacherId).getName();//we save the current datas from the student DB
+		teacher.setName(name);
+		teacher.setStudents(studentsList);
+		teacherRepository.delete(teacherId);//We delete the current student
+		teacher result = teacherRepository.save(teacher);//we add the student with the mark updated
+		return result;
+	}
 	 
 	
 	@RequestMapping(method = RequestMethod.GET, value="/")

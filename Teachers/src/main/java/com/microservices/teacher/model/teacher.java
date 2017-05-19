@@ -15,7 +15,7 @@ public class teacher {
 	private String id; 
 	
 	private String name;
-//	private List<Student> students;
+	private List<Student> students;
 	
 	private static RestTemplate restTemplate = new RestTemplate();
 	
@@ -25,17 +25,17 @@ public class teacher {
 	public String getName(){
 		return name;
 	}
-/*	public void setStudents(List<Student> students){
+	public void setStudents(List<Student> students){
 		this.students = students;
-	}*/
+	}
 /*	public void setStudentList(){
 		//solution found in the following link http://stackoverflow.com/questions/23674046/get-list-of-json-objects-with-spring-resttemplate
 		ResponseEntity<List<Student>> students = restTemplate.exchange("http://localhost:8080/student/" + this.name,HttpMethod.GET,null,new ParameterizedTypeReference<List<Student>>(){});
 		this.students = students.getBody();
 	}*/
-/*	public List<Student> getStudents(){
+	public List<Student> getStudents(){
 		return students;
-	}*/
+	}
 	public void setId(String id){
 		this.id=id;
 	}

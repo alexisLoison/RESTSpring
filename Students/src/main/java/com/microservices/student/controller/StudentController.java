@@ -49,39 +49,53 @@ public class StudentController {
 		String firstName=studentRepository.findOne(studentId).getFirstName();//we save the current datas from the student DB
 		String lastName=studentRepository.findOne(studentId).getLastName();
 		int Year=studentRepository.findOne(studentId).getYear();
+		String teacher=studentRepository.findOne(studentId).getTeacher();
 		student.setFirstName(firstName);//we use the previous saved datas to set a new student
 		student.setLastName(lastName);
 		student.setId(studentId);
 		student.setYear(Year);
+		student.setTeacher(teacher);
 		studentRepository.delete(studentId);//We delete the current student
 		Student result = studentRepository.save(student);//we add the student with the mark updated
 		return result;
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value="/teacher")
-	public String getTeacher(){
+	@RequestMapping(method = RequestMethod.GET, value = "/teacherUrl")
+	public String getTeacherUrl(){
 		discoveryClient = DiscoveryManager.getInstance().getDiscoveryClient();
 		String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
+		
 		String url = teacherUrl + "teacher/Random";
+		return url;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/getRandomTeacher")
+	public String getRandomTeacher(){
 		String teacherName = restTemplate.exchange("http://teacher/teacher/Random", HttpMethod.GET,null,String.class).getBody();
-		//error: No instance for Localhost
-		//tried with url instead of "http://localhost:8765/teacher/teacher/Random": no instance for docker-machine
 		return teacherName;
 	}
 	
-	//@RequestMapping(method = RequestMethod.GET, value="/teacher")
-	//public String setTeacher(/*@PathVariable String studentId*/){
-	/*	restTemplate = new RestTemplate();
-		discoveryClient = DiscoveryManager.getInstance().getDiscoveryClient();
-		String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
-		String url = teacherUrl + "teacher/Random";
-		return restTemplate.getForObject(teacherUrl, String.class);
-		//return teacherUrl;
-		//RestTemplate restTemplate = new RestTemplate();
-		//return restTemplate.exchange("http://localhost:27001/teacher/Random", HttpMethod.GET, null, String.class).getBody();
-		//studentRepository.findOne(studentId).setTeacher();
-		//return studentRepository.findOne(studentId).getTeacher();
-	}*/
+	@RequestMapping(method = RequestMethod.POST, value="/{studentId}/teacher")
+	public Student setTeacher(@PathVariable String studentId, @RequestBody Student student){
+		if (studentRepository.findOne(studentId).getTeacher() == null){
+			String teacherName = getRandomTeacher();
+			String firstName=studentRepository.findOne(studentId).getFirstName();//we save the current datas from the student DB
+			String lastName=studentRepository.findOne(studentId).getLastName();
+			int Year=studentRepository.findOne(studentId).getYear();
+			int mark=studentRepository.findOne(studentId).getMark();
+			student.setFirstName(firstName);//we use the previous saved datas to set a new student
+			student.setLastName(lastName);
+			student.setId(studentId);
+			student.setYear(Year);
+			student.setMark(mark);
+			student.setTeacher(teacherName);
+			studentRepository.delete(studentId);//We delete the current student
+			Student result = studentRepository.save(student);//we add the student with the mark updated
+			return result;
+		}else
+			return studentRepository.findOne(studentId);
+	}
+	
 	@RequestMapping(method = RequestMethod.GET, value="/{studentId}") //We Use the Id returned by the POST method to look for a student
 	public Student get(@PathVariable String studentId){
 		return studentRepository.findOne(studentId);
@@ -92,12 +106,12 @@ public class StudentController {
 	}
 	@RequestMapping(method = RequestMethod.GET, value="/teacherSearch/{teacherName}")
 	public List<Student> getStudentsperTeacher(@PathVariable String teacherName){
-		List<Student> allStudents = studentRepository.findAll();
+		List<Student> allStudents = getAll();
 		List<Student> filteredStudents = new ArrayList<>();
-		for (Student student: allStudents){
-			if(student.getTeacher() == teacherName){
-				filteredStudents.add(student);
-			}
+		int i;
+		for(i=0;i<allStudents.size();i++){
+			if(allStudents.get(i).getTeacher().equals(teacherName))
+				filteredStudents.add(allStudents.get(i));
 		}
 		return filteredStudents;
 	}
