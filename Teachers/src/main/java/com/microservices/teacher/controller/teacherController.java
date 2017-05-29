@@ -38,37 +38,9 @@ public class teacherController {
 		return result;
 	}
 	
-/*	@RequestMapping(method = RequestMethod.POST, value="/{teacherId}/setStudents")
-	public teacher setStudents(@PathVariable String teacherId){
-		teacherRepository.findOne(teacherId).setStudentList();//is looking for students linked to the teacher and update the teacher database with those students 
-		return teacherRepository.findOne(teacherId);
-	}*/
-	
 	@RequestMapping(method = RequestMethod.GET, value="/{teacherId}")
 	public teacher get(@PathVariable String teacherId){
 		return teacherRepository.findOne(teacherId);
-	}
-	
-	/*@RequestMapping(method = RequestMethod.GET, value="/{teacherId}/students")
-	public Student getStudents(@PathVariable String teacherId){
-		return rt.getForObject(url, Student.class);
-	}*/
-	//or
-	
-	@RequestMapping(method = RequestMethod.POST, value="/{teacherId}/students")
-	public teacher getStudents(@PathVariable String teacherId, @RequestBody teacher teacher){
-		if(teacherRepository.findOne(teacherId).getStudents() == null){
-			String teacherName=teacherRepository.findOne(teacherId).getName();
-			ResponseEntity<List<Student>> students = rt.exchange("http://student/student/teacherSearch/"+ teacherName, HttpMethod.GET,null,new ParameterizedTypeReference<List<Student>>(){});
-			List<Student> studentsList = students.getBody();
-			String name=teacherRepository.findOne(teacherId).getName();//we save the current datas from the student DB
-			teacher.setName(name);
-			teacher.setStudents(studentsList);
-			teacherRepository.delete(teacherId);//We delete the current student
-			teacher result = teacherRepository.save(teacher);//we add the student with the mark updated
-			return result;
-		}else
-			return teacherRepository.findOne(teacherId);
 	}
 	 
 
@@ -84,5 +56,10 @@ public class teacherController {
 		int i=(int)(Math.random()*100);
 		int numb=i*taille/100;
 		return teacherRepository.findAll().get(numb).getName();
+	}
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/clear")
+	public void reset(){
+		teacherRepository.deleteAll();
 	}
 }

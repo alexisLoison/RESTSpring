@@ -3,23 +3,31 @@ package com.microservices.student.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.http.HttpMethod;
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestTemplate; 
+import org.springframework.stereotype.Service;
 
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
+import com.microservices.student.StudentBoot;
 import com.microservices.student.model.Student;
 import com.microservices.student.repository.StudentRepository;
 import com.microservices.student.configuration.config;
 
+@Service
+@EnableHystrix
 @RestController
 @RequestMapping("/student")
 @FeignClient("teacher")
@@ -27,14 +35,15 @@ public class StudentController {
 	@Autowired
 	private RestTemplate restTemplate;
 	
+	static Logger LOG = Logger.getLogger(StudentController.class.getName());
+	
 	DiscoveryClient discoveryClient;	
 	
 	@Autowired
 	StudentRepository studentRepository;
-
-
 	
-	
+	@Autowired
+	StudentBoot studentBoot;
 	//voir http://ippon.developpez.com/tutoriels/spring/microservices-netflixoss/
 	//String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
 	
@@ -43,6 +52,7 @@ public class StudentController {
 		Student result = studentRepository.save(student);
 		return result;
 	}
+	
 	@RequestMapping(method = RequestMethod.POST, value="/{studentId}/addMark")//only set the student's mark
 	public Student addmark(@PathVariable String studentId, @RequestBody Student student){
 		String firstName=studentRepository.findOne(studentId).getFirstName();//we save the current datas from the student DB
@@ -68,10 +78,15 @@ public class StudentController {
 		return url;
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/getRandomTeacher")
+	@HystrixCommand(fallbackMethod = "defaultTeacher")
 	public String getRandomTeacher(){
 		String teacherName = restTemplate.exchange("http://teacher/teacher/Random", HttpMethod.GET,null,String.class).getBody();
 		return teacherName;
+	}
+	
+	public String defaultTeacher(){
+		LOG.warn("Fallback method for getRandomTeacher is being used.");
+		return "noTeacherAvailable";
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value="/{studentId}/teacher")

@@ -40,7 +40,10 @@ dependencies {
 			'org.springframework.cloud:spring-cloud-starter-eureka:' + springCloudStarterEurekaVersion,
             'org.springframework.cloud:spring-cloud-starter-eureka-server:' + springCloudStarterEurekaVersion,
             'org.springframework.cloud:spring-cloud-starter-hystrix-dashboard:' + springCloudStarterEurekaVersion,
-            'org.springframework.cloud:spring-cloud-starter-zuul:' + springCloudStarterEurekaVersion
+            'org.springframework.cloud:spring-cloud-starter-zuul:' + springCloudStarterEurekaVersion,
+			'org.springframework.cloud:spring-cloud-starter-hystrix:' + springCloudStarterEurekaVersion,
+			'org.springframework.cloud:spring-cloud-starter-bus-amqp:' + springCloudStarterEurekaVersion,
+			'org.springframework.cloud:spring-cloud-netflix-hystrix-amqp:' + springCloudStarterEurekaVersion
 			
 
     testCompile 'junit:junit:4.+'
