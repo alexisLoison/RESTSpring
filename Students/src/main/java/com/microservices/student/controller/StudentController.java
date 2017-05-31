@@ -1,6 +1,7 @@
 package com.microservices.student.controller;
 
 import java.util.ArrayList;
+//import java.util.concurrent.Future;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -9,6 +10,8 @@ import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.http.HttpMethod;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,11 +23,15 @@ import org.springframework.stereotype.Service;
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.rabbitmq.client.AMQP;
 import com.microservices.student.StudentBoot;
 import com.microservices.student.model.Student;
 import com.microservices.student.repository.StudentRepository;
 import com.microservices.student.configuration.config;
+/*import com.rabbitmq.client.*;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;*/
 
 @Service
 @EnableHystrix
@@ -36,6 +43,8 @@ public class StudentController {
 	private RestTemplate restTemplate;
 	
 	static Logger LOG = Logger.getLogger(StudentController.class.getName());
+	
+	//private static final String QUEUE_NAME = "teacherName_queue";
 	
 	DiscoveryClient discoveryClient;	
 	
@@ -78,8 +87,31 @@ public class StudentController {
 		return url;
 	}
 	
-	@HystrixCommand(fallbackMethod = "defaultTeacher")
-	public String getRandomTeacher(){
+	
+	@HystrixCommand(fallbackMethod = "defaultTeacher", commandProperties={
+			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "500")})
+	public String getRandomTeacher(){// throws IOException, TimeoutException
+		//initialize the connection to RabbitMq Server
+		/*ConnectionFactory factory = new ConnectionFactory();
+		factory.setHost("localhost");
+		Connection connection = factory.newConnection();
+		Channel channel = connection.createChannel();*/
+		
+		//Enter the specific queue
+		//channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+		
+		//Consumer consumer = new DefaultConsumer(channel) {
+		/*	@Override
+			public void handleDelivery(String consumerTag,
+					Envelope envelope, AMQP.BasicProperties properties,
+					byte[] body) throws IOException{
+				String message = new String(body, "UTF-8");
+				System.out.println(" [x] Received '" + message +"'");
+			}
+		};
+		channel.basicConsume(QUEUE_NAME, true, consumer);
+		*/
+		
 		String teacherName = restTemplate.exchange("http://teacher/teacher/Random", HttpMethod.GET,null,String.class).getBody();
 		return teacherName;
 	}
@@ -90,7 +122,7 @@ public class StudentController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value="/{studentId}/teacher")
-	public Student setTeacher(@PathVariable String studentId, @RequestBody Student student){
+	public Student setTeacher(@PathVariable String studentId, @RequestBody Student student){//Future<Student>
 		if (studentRepository.findOne(studentId).getTeacher() == null){
 			String teacherName = getRandomTeacher();
 			String firstName=studentRepository.findOne(studentId).getFirstName();//we save the current datas from the student DB

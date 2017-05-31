@@ -20,6 +20,9 @@ import com.microservices.teacher.repository.teacherRepository;
 import com.netflix.discovery.DiscoveryClient;
 
 import com.microservices.teacher.model.Student;
+import com.rabbitmq.client.*;
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 @RestController
 @RequestMapping("/teacher")
@@ -28,6 +31,8 @@ public class teacherController {
 	
 	@Autowired
 	private RestTemplate rt;
+	
+	private final static String QUEUE_NAME = "teacherName_queue";
 	
 	@Autowired
 	teacherRepository teacherRepository;
@@ -51,10 +56,25 @@ public class teacherController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value="/Random")
-	public String getRandom(){
+	public String getRandom(){// throws IOException, TimeoutException
+		/*ConnectionFactory factory = new ConnectionFactory();
+		factory.setHost("localhost");
+		Connection connection = factory.newConnection();
+		Channel channel = connection.createChannel();*/
+		
 		int taille=teacherRepository.findAll().size();
 		int i=(int)(Math.random()*100);
 		int numb=i*taille/100;
+		
+		/*String message = teacherRepository.findAll().get(numb).getName();
+		channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+		
+		channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
+		System.out.println(" [x] Sent '" + message + "'");
+		
+		channel.close();
+		connection.close();*/
+		
 		return teacherRepository.findAll().get(numb).getName();
 	}
 	

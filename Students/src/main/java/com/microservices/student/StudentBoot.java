@@ -21,8 +21,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
 import com.microservices.student.controller.*;
+import com.netflix.hystrix.Hystrix;
+
 import org.springframework.web.bind.annotation.RestController;
 
+//@EnableHystrixDashboard
 @EnableCircuitBreaker
 @RestController
 @EnableEurekaClient
