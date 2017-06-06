@@ -1,7 +1,22 @@
 spring:
   application:
     name: student
-
+  rabbitmq:
+    dynamic: true
+    port: 5672
+    username: guest
+    password: guest
+    host: localhost
+    
+logging:
+  pattern:
+    console: '%d{mm:ss.SSS} %-5p [%-31t] [%-54logger{0}] %marker%m%ex{full} - %logger - %F:%L%n'
+  level:
+    org:
+      springframework:
+        amqp: TRACE
+    root: warn
+  
 server:
   port: 1111
 

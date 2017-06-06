@@ -1,9 +1,13 @@
 package com.microservices.teacher.controller;
 //voir le site https://github.com/spring-cloud-samples/customers-stores
 import java.util.List;
+import java.util.*;
 
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,22 +21,30 @@ import com.microservices.teacher.model.teacher;
 //import com.microservices.teacher.model.Student;
 import com.microservices.teacher.repository.teacherRepository;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.DiscoveryClient;
-
+import com.esotericsoftware.minlog.Log;
+import com.microservices.teacher.Teacher;
 import com.microservices.teacher.model.Student;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/teacher")
 public class teacherController {
+	final static String queueName = "spring.rpc.requests";
+	
 	private DiscoveryClient dc;
+	
+	private static final Logger log = LoggerFactory.getLogger(teacherController.class);
 	
 	@Autowired
 	private RestTemplate rt;
-	
-	private final static String QUEUE_NAME = "teacherName_queue";
 	
 	@Autowired
 	teacherRepository teacherRepository;
@@ -56,26 +68,36 @@ public class teacherController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value="/Random")
-	public String getRandom(){// throws IOException, TimeoutException
-		/*ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost("localhost");
-		Connection connection = factory.newConnection();
-		Channel channel = connection.createChannel();*/
-		
+	public String getRandom(){
 		int taille=teacherRepository.findAll().size();
 		int i=(int)(Math.random()*100);
 		int numb=i*taille/100;
-		
-		/*String message = teacherRepository.findAll().get(numb).getName();
-		channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-		
-		channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-		System.out.println(" [x] Sent '" + message + "'");
-		
-		channel.close();
-		connection.close();*/
-		
 		return teacherRepository.findAll().get(numb).getName();
+	}
+	
+	@RabbitListener(queues = queueName)
+	private String HandleMessage(String request){
+		System.out.println(" [x] Received  teacher name request " );
+		String response = getRandom();
+		System.out.println(" [.] response is " + response);
+		return response;
+	}
+	
+	private String serializeToJson(teacher Teacher){//taking a teacher object to serialize it to json like teacher: { id: <teacherId>, name: <teacherName> }
+		ObjectMapper mapper = new ObjectMapper();
+		String jsonInString = "";
+		
+		final Map<String, teacher> dataMap = new HashMap<>();
+		dataMap.put("teacher", Teacher);
+		
+		try{
+			jsonInString = mapper.writeValueAsString(dataMap);
+		}catch (JsonProcessingException e){
+			log.info(String.valueOf(e));
+		}
+		log.debug(jsonInString);
+		
+		return jsonInString;
 	}
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/clear")

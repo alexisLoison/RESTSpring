@@ -4,9 +4,15 @@ import java.util.ArrayList;
 //import java.util.concurrent.Future;
 import java.util.List;
 
+import com.microservices.student.StudentBoot;
+
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 import org.apache.log4j.Logger;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.LoggingSystem;
+import org.springframework.expression.spel.ast.TypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
@@ -28,7 +34,6 @@ import com.rabbitmq.client.AMQP;
 import com.microservices.student.StudentBoot;
 import com.microservices.student.model.Student;
 import com.microservices.student.repository.StudentRepository;
-import com.microservices.student.configuration.config;
 /*import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;*/
@@ -39,14 +44,29 @@ import java.util.concurrent.TimeoutException;*/
 @RequestMapping("/student")
 @FeignClient("teacher")
 public class StudentController {
+	final static String queueName = "spring.rpc.requests";
+	final static String exchangeName = "spring.rpc";
+	
 	@Autowired
 	private RestTemplate restTemplate;
+	
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
+	
+	@Autowired
+	private DirectExchange exchange;
 	
 	static Logger LOG = Logger.getLogger(StudentController.class.getName());
 	
 	//private static final String QUEUE_NAME = "teacherName_queue";
 	
 	DiscoveryClient discoveryClient;	
+	
+	/*@Autowired
+	private DirectExchange directExchange;*/
+	
+	/*@Autowired
+	private RabbitTemplate rabbitTemplate;*/
 	
 	@Autowired
 	StudentRepository studentRepository;
@@ -55,7 +75,8 @@ public class StudentController {
 	StudentBoot studentBoot;
 	//voir http://ippon.developpez.com/tutoriels/spring/microservices-netflixoss/
 	//String teacherUrl = discoveryClient.getNextServerFromEureka("teacher", false).getHomePageUrl();
-	
+
+
 	@RequestMapping(method = RequestMethod.POST)//We fill student dataBase with the datas we post through the method, and save it in our repository
 	public Student create(@RequestBody Student student){
 		Student result = studentRepository.save(student);
@@ -87,31 +108,18 @@ public class StudentController {
 		return url;
 	}
 	
+	@RequestMapping(method = RequestMethod.GET, value = "/rabbitTeacher")
+	public String getRabTeacher(){
+		String request = "get a teacher name";
+		System.out.println(" [x] Request to " + request + "\n");
+		String response = (String) rabbitTemplate.convertSendAndReceive(exchangeName, "rpc", request);
+		System.out.println(" [.] Response from '" + request + "' is '" + response + "' \n");
+		return response;
+	}
 	
 	@HystrixCommand(fallbackMethod = "defaultTeacher", commandProperties={
 			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "500")})
-	public String getRandomTeacher(){// throws IOException, TimeoutException
-		//initialize the connection to RabbitMq Server
-		/*ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost("localhost");
-		Connection connection = factory.newConnection();
-		Channel channel = connection.createChannel();*/
-		
-		//Enter the specific queue
-		//channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-		
-		//Consumer consumer = new DefaultConsumer(channel) {
-		/*	@Override
-			public void handleDelivery(String consumerTag,
-					Envelope envelope, AMQP.BasicProperties properties,
-					byte[] body) throws IOException{
-				String message = new String(body, "UTF-8");
-				System.out.println(" [x] Received '" + message +"'");
-			}
-		};
-		channel.basicConsume(QUEUE_NAME, true, consumer);
-		*/
-		
+	public String getRandomTeacher(){
 		String teacherName = restTemplate.exchange("http://teacher/teacher/Random", HttpMethod.GET,null,String.class).getBody();
 		return teacherName;
 	}

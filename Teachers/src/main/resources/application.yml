@@ -1,6 +1,21 @@
 spring:
   application:
     name: teacher
+  rabbitmq:
+    dynamic: true
+    port: 5672
+    username: guest
+    password: guest
+    host: localhost
+    
+logging:
+  pattern:
+    console: '%d{mm:ss.SSS} %-5p [%-31t] [%-54logger{0}] %marker%m%ex{full} - %logger - %F:%L%n'
+  level:
+    org:
+      springframework:
+        amqp: TRACE
+    root: warn
     
 server:
   port: 2222    
@@ -15,3 +30,4 @@ eureka:
     leaseRenewalIntervalInSeconds: 10
     metadataMap:
       instanceId: ${spring.application.name}:${spring.application.instance_id:${server.port}:${random.value}}
+      
