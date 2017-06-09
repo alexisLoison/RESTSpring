@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.expression.spel.ast.TypeReference;
 import org.springframework.http.HttpMethod;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate; 
 import org.springframework.stereotype.Service;
+import org.springframework.kafka.annotation.KafkaListener;
 
 import com.netflix.discovery.DiscoveryClient;
 import com.netflix.discovery.DiscoveryManager;
@@ -47,26 +49,20 @@ public class StudentController {
 	final static String queueName = "spring.rpc.requests";
 	final static String exchangeName = "spring.rpc";
 	
+	//Spring RPC example
 	@Autowired
 	private RestTemplate restTemplate;
 	
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 	
+	//RabbitMQ RPC example
 	@Autowired
 	private DirectExchange exchange;
 	
 	static Logger LOG = Logger.getLogger(StudentController.class.getName());
 	
-	//private static final String QUEUE_NAME = "teacherName_queue";
-	
 	DiscoveryClient discoveryClient;	
-	
-	/*@Autowired
-	private DirectExchange directExchange;*/
-	
-	/*@Autowired
-	private RabbitTemplate rabbitTemplate;*/
 	
 	@Autowired
 	StudentRepository studentRepository;
@@ -108,6 +104,7 @@ public class StudentController {
 		return url;
 	}
 	
+	//RabbitMQ RPC example
 	@RequestMapping(method = RequestMethod.GET, value = "/rabbitTeacher")
 	public String getRabTeacher(){
 		String request = "get a teacher name";
@@ -117,6 +114,28 @@ public class StudentController {
 		return response;
 	}
 	
+	//Kafka Integration
+	@KafkaListener(topics = "testKafka", group = "test-consumer-group")
+	public void listen(String message){
+		System.out.println("Received Message in group test-consumer-group: " + message);
+		setTeacherkafka(message);
+	}
+	
+	public void setTeacherkafka(String teacher){
+		int i;
+		for(i=0; i<studentRepository.findAll().size(); i++){
+			if(studentRepository.findAll().get(i).getTeacher() == null){//setting the teacher for the first student without teacher
+				Student studenttemp = studentRepository.findAll().get(i);
+				studenttemp.setTeacher(teacher);
+				studentRepository.delete(studentRepository.findAll().get(i).getId());
+				studentRepository.save(studenttemp);
+				break;
+			}
+		}
+	}
+	
+	//Hystrix example
+	//Spring RPC example
 	@HystrixCommand(fallbackMethod = "defaultTeacher", commandProperties={
 			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "500")})
 	public String getRandomTeacher(){

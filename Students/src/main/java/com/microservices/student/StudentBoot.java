@@ -47,9 +47,10 @@ public class StudentBoot{
 	@Autowired
 	private StudentController controller;
 
-	final static String queueName = "springQueue";
-	final static String exchangeName = "springExchange";
+	//RabbitMQ RPC example
+	final static String exchangeName = "spring.rpc";
 	
+	//Spring RPC example
 	@Bean
 	public RestTemplate rest(RestTemplateBuilder builder){
 		return builder.build();
@@ -65,6 +66,7 @@ public class StudentBoot{
 		SpringApplication.run(StudentBoot.class, args);
 	}
 	
+	//RabbitMQ RPC example
 	@Bean
 	DirectExchange exchange(){
 		return new DirectExchange(exchangeName);

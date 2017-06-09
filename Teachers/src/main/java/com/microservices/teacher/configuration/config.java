@@ -1,66 +1,64 @@
 package com.microservices.teacher.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.amqp.remoting.service.AmqpInvokerServiceExporter;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 
 @Configuration
 public class config {
 
+	//Spring RPC example
 	@LoadBalanced
 	@Bean
 	public RestTemplate restTemplate(){
 		return new RestTemplate();
 	}
-	/*
+	
+	//kafkaConfig from here to Sender method
+	@Value(value = "localhost:9092")
+	private String bootstrapAddress;
+	
+	public ProducerFactory<String, String> producerFactory(){
+		Map<String, Object> props = new HashMap<>();
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		return new DefaultKafkaProducerFactory<>(props);
+	}
+/*	
 	@Bean
-	public AmqpInvokerServiceExporter exporter(String teacherName, AmqpTemplate template){
-		AmqpInvokerServiceExporter exporter = new AmqpInvokerServiceExporter();
-		exporter.setServiceInterface(String.class);
-		exporter.setService(teacherName);
-		exporter.setAmqpTemplate(template);
-		return exporter;
+	public Map<String, Object> producerConfigs(){
+		Map<String, Object> props = new HashMap<>();
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		return props;
 	}
 	
 	@Bean
-	public SimpleMessageListenerContainer listener(ConnectionFactory factory, AmqpInvokerServiceExporter exporter, Queue queue){
-		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(factory);
-		container.setMessageListener(exporter);
-		container.setQueueNames(queue.getName());
-		return container;
+	public ProducerFactory<String, String> producerFactory(){
+		return new DefaultKafkaProducerFactory<>(producerConfigs());
 	}*/
-	/*
+	
 	@Bean
-	public DirectExchange exchange(){
-		return new DirectExchange("student.rpc");
+	public KafkaTemplate<String, String> kafkaTemplate(){
+		return new KafkaTemplate<>(producerFactory());
 	}
 
-	@Bean
-	public Binding binding(DirectExchange exchange, Queue queue){
-		return BindingBuilder.bind(queue).to(exchange).with("rpc");
-	}
-	
-	@Bean
-	public RabbitTemplate rabbitTemplate(ConnectionFactory factory){
-		RabbitTemplate template = new RabbitTemplate(factory);
-		template.setRoutingKey("rpc");
-		template.setExchange("student.rpc");
-		return template;
-	}*/
-	
-	/*@Bean
-	public Queue queue(){
-		return new Queue("student.rpc.requests");
-	}*/
-	
 }

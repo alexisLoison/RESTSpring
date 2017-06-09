@@ -43,7 +43,9 @@ dependencies {
 			'org.springframework.cloud:spring-cloud-starter-zuul:' + springCloudStarterEurekaVersion,
 			'org.springframework.cloud:spring-cloud-starter-hystrix:' + springCloudStarterEurekaVersion,
 			'org.springframework.cloud:spring-cloud-starter-bus-amqp:' + springCloudStarterEurekaVersion,
-			'org.springframework.cloud:spring-cloud-netflix-hystrix-amqp:' + springCloudStarterEurekaVersion
+			'org.springframework.cloud:spring-cloud-netflix-hystrix-amqp:' + springCloudStarterEurekaVersion,
+			'org.springframework.kafka:spring-kafka:' + springKafkaVersion,
+			'org.springframework.kafka:spring-kafka-test:' + springKafkaVersion
 
     testCompile 'junit:junit:4.+'
 }

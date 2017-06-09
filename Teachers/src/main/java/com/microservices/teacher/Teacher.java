@@ -25,7 +25,7 @@ import org.springframework.messaging.handler.annotation.support.DefaultMessageHa
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+//import org.springframework.web.bind.annotation.RestController;
 import org.springframework.amqp.core.DirectExchange;
 
 import java.util.List;
@@ -35,6 +35,7 @@ import java.util.List;
 @EnableHystrixDashboard
 @SpringBootApplication
 public class Teacher {
+	//RabbitMQ RPC example
 	final static String queueName = "spring.rpc.requests";
 	final static String exchangeName = "spring.rpc";
 	
@@ -43,16 +44,19 @@ public class Teacher {
 		SpringApplication.run(Teacher.class, args);
 	}
 	
+	//RabbitMQ RPC example
 	@Bean
 	Queue queue(){
 		return new Queue(queueName);
 	}
 	
+	//RabbitMQ RPC example
 	@Bean
 	DirectExchange exchange(){
 		return new DirectExchange(exchangeName);
 	}
 	
+	//RabbitMQ RPC example
 	@Bean
 	Binding binding(Queue queue, DirectExchange exchange){
 		return BindingBuilder.bind(queue).to(exchange).with("rpc");
