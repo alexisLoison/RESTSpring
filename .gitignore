@@ -6,5 +6,8 @@ Eureka/.gradle
 Eureka/.settings
 Zuul/.gradle
 Zuul/.settings
+Consul/.gradle
+Consul/.settings
+descriptionDuTest.docx
 .classpath
 .project

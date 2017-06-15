@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableEurekaClient
 @SpringBootApplication
 @EnableRabbit
-//@EnableScheduling
+@EnableScheduling
 public class StudentBoot{
 	@Autowired
 	private StudentController controller;

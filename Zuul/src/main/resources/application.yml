@@ -22,3 +22,33 @@ zuul:
     teacher:
       path: /teacher/**
       serviceId: TEACHER
+      
+---
+server:
+  port: ${server_port:8765}
+
+spring:
+  profiles: docker
+  application:
+    name: zuul
+    
+eureka:
+  instance:
+    hostname: zuul
+    preferIpAddress: true
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:8761/eureka/
+
+zuul:
+  routes:
+    student:
+      path: /student/**
+      url: http://student:1111
+    teacher:
+      path: /teacher/**
+      url: http://teacher:2222
+      
+management:
+  security:
+    enabled: false

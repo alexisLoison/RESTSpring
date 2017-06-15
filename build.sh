@@ -8,7 +8,8 @@ echo "*******************************************************"
 read rep
 if [ $rep = "1" ]
 then
-  docker run -P -d --name mongodb mongo
+  docker network create --driver=bridge demo-net
+  docker run -p 27017:27017 -d --network demo-net --name mongodb mongo
   sleep 1
   port=$(docker container ls | grep mongo | cut -d ':' -f 2 | cut -d '-' -f 1)
   echo " "
@@ -29,9 +30,11 @@ then
   docker exec -it mongodb sh
 elif [ $rep = "2" ]
 then
+  leaderName=$(docker node ls | grep '*' | awk '{print $3}')
+  echo "leaderName: " $leaderName
   docker network create -d overlay --subnet=192.168.204.0/26 demoSpring-net
-  docker service create --name mongodb --network demoSpring-net --publish 27017:27017/tcp --constraint=node.hostname==virtual922 mongo
-  until ["$(docker service ls | grep mongodb | cut -d '/' -f 1 | tail -c 2)" == "1" ]
+  docker service create --name mongodb --network demoSpring-net --publish 27017:27017/tcp --constraint=node.hostname==$leaderName mongo
+  until test $(docker service ls | grep mongodb | cut -d '/' -f 1 | tail -c 2) == 1	
   do
     sleep 1
     echo " "

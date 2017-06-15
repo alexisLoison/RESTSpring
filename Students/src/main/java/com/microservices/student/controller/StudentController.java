@@ -115,11 +115,11 @@ public class StudentController {
 	}
 	
 	//Kafka Integration
-	@KafkaListener(topics = "testKafka", group = "test-consumer-group")
+	/*@KafkaListener(topics = "testKafka", group = "test-consumer-group")
 	public void listen(String message){
 		System.out.println("Received Message in group test-consumer-group: " + message);
 		setTeacherkafka(message);
-	}
+	}*/
 	
 	public void setTeacherkafka(String teacher){
 		int i;

@@ -15,4 +15,10 @@ else
   echo " "
   docker container stop $(docker container ls | grep mongodb | awk '{print $1}')
   docker container rm $(docker container ls -a | grep mongodb | awk '{print $1}')
+  while docker container ls -a | grep mongodb
+  do
+    sleep 1
+	echo "waiting for mongodb to be deleted..."
+  done
+  docker network rm demo-net
 fi

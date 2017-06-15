@@ -53,8 +53,8 @@ public class teacherController {
 	final static String queueName = "spring.rpc.requests";
 
 	//Kafka integration
-	@Value(value = "testKafka")
-	private String topicName;
+/*	@Value(value = "testKafka")
+	private String topicName;*/
 	
 	private DiscoveryClient dc;
 	
@@ -67,8 +67,8 @@ public class teacherController {
 	teacherRepository teacherRepository;
 	
 	//KAFKA integration
-	@Autowired
-	private KafkaTemplate<String, String> kafkaTemplate;
+/*	@Autowired
+	private KafkaTemplate<String, String> kafkaTemplate;*/
 	
 	@RequestMapping(method = RequestMethod.POST)
 	public teacher create(@RequestBody teacher teacher){
@@ -109,7 +109,7 @@ public class teacherController {
 	}
 	
 	//Kafka Integration
-	@RequestMapping(method = RequestMethod.GET, value="/sendTeacher")
+/*	@RequestMapping(method = RequestMethod.GET, value="/sendTeacher")
 	public String sendTeacher(){
 		String data = getRandom();
 		ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, data);
@@ -127,7 +127,7 @@ public class teacherController {
 			}
 		});
 		return data;
-	}
+	}*/
 	
 	private String serializeToJson(teacher Teacher){//taking a teacher object to serialize it to json like teacher: { id: <teacherId>, name: <teacherName> }
 		ObjectMapper mapper = new ObjectMapper();

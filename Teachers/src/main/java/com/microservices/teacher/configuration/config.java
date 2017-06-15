@@ -30,7 +30,7 @@ public class config {
 		return new RestTemplate();
 	}
 	
-	//kafkaConfig from here to Sender method
+/*	//kafkaConfig from here to Sender method
 	@Value(value = "localhost:9092")
 	private String bootstrapAddress;
 	
@@ -40,7 +40,7 @@ public class config {
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 		return new DefaultKafkaProducerFactory<>(props);
-	}
+	}*/
 /*	
 	@Bean
 	public Map<String, Object> producerConfigs(){
@@ -54,11 +54,11 @@ public class config {
 	@Bean
 	public ProducerFactory<String, String> producerFactory(){
 		return new DefaultKafkaProducerFactory<>(producerConfigs());
-	}*/
+	}
 	
 	@Bean
 	public KafkaTemplate<String, String> kafkaTemplate(){
 		return new KafkaTemplate<>(producerFactory());
-	}
+	}*/
 
 }

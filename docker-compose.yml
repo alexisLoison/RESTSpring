@@ -1,0 +1,61 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    networks:
+      - demo-net
+    ports:
+      - "15672:15672"
+    hostname: rabbitmq
+        
+  eureka:
+    image: microservicedemo/eureka
+    container_name: eureka
+    networks:
+      - demo-net
+    ports:
+      - "8761:8761"
+
+#  student:
+#    image: microservicedemo/student
+#    container_name: student
+#    ports:
+#      - "1111:1111"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    depends_on:
+#      - eureka 
+#    external_links:
+#      - mongodb
+
+#  teacher:
+#    image: microservicedemo/teacher
+#    container_name: teacher
+#    ports:
+#      - "2222:2222"
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    depends_on:
+#      - eureka
+#    external_links:
+#      - mongodb
+
+  zuul:
+    image: microservicedemo/zuul
+    container_name: zuul
+    networks:
+      - demo-net
+    ports:
+      - "8765:8765"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    links:
+      - eureka
+    depends_on:
+      - eureka
+
+networks:
+  demo-net:
+    external: true
