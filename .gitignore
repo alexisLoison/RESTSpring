@@ -8,6 +8,7 @@ Zuul/.gradle
 Zuul/.settings
 Consul/.gradle
 Consul/.settings
+Consul/
 descriptionDuTest.docx
 .classpath
 .project

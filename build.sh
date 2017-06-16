@@ -1,12 +1,4 @@
-echo "*******************************************************"
-echo "*******************************************************"
-echo "** running mongo as a container or a swarm service ? **"
-echo "** 1                                       container **"
-echo "** 2                                   swarm service **"
-echo "*******************************************************"
-echo "*******************************************************"
-read rep
-if [ $rep = "1" ]
+if [ $1 = "1" ]
 then
   docker network create --driver=bridge demo-net
   docker run -p 27017:27017 -d --network demo-net --name mongodb mongo
@@ -28,12 +20,13 @@ then
   echo "****************************************************************"
   echo " "
   docker exec -it mongodb sh
-elif [ $rep = "2" ]
+elif [ $1 = "2" ]
 then
+  eval "$(docker-machine env leader)"
   leaderName=$(docker node ls | grep '*' | awk '{print $3}')
   echo "leaderName: " $leaderName
   docker network create -d overlay --subnet=192.168.204.0/26 demoSpring-net
-  docker service create --name mongodb --network demoSpring-net --publish 27017:27017/tcp --constraint=node.hostname==$leaderName mongo
+  docker service create --name mongodb --network demoSpring-net --publish 27017:27017/tcp mongo
   until test $(docker service ls | grep mongodb | cut -d '/' -f 1 | tail -c 2) == 1	
   do
     sleep 1
@@ -43,6 +36,8 @@ then
     echo "***************************************************"
     echo " "
   done
+  host=$(docker service ps $(docker service ls | grep mongo | awk '{print $2}') | grep Running | awk '{print $4}')
+  eval "$(docker-machine env $host)"
   port=$(docker container ls | grep mongo | cut -d '/' -f 1 | tail -c 6)
   echo " "
   echo " "

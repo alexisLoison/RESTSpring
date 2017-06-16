@@ -5,9 +5,17 @@ then
   echo "** removing mongo service **"
   echo "****************************"
   echo " "
+  docker service rm student
+  docker service rm teacher
+  docker service rm eureka
+  docker service rm zuul
   docker service rm mongodb
   docker network rm demoSpring-net
+  eval "$(docker-machine env leader)"
+  docker container stop registry
+  docker container rm registry
 else
+  sh resetTnScont.sh
   echo " "
   echo "******************************"
   echo "** removing mongo container **"

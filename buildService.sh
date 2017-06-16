@@ -1,14 +1,10 @@
+eval "$(docker-machine env leader)"
+
 leaderName=$(docker node ls | grep '*' | awk '{print $3}')
 registryPort=5000
 registryIP=$(hostname - I | awk '{print $1}')
 
-echo " "
-echo "******************************"
-echo "** setting up the registry **"
-echo "******************************"
-echo " "
-docker pull registry
-docker run -d -p 5000:5000 --restart always --name registry registry:latest
+
 echo " "
 echo "*******************************************"
 echo "** waiting for registry to be available **"
