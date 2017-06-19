@@ -29,7 +29,7 @@ then
   docker service create --name mongodb --network demoSpring-net --publish 27017:27017/tcp mongo
   until test $(docker service ls | grep mongodb | cut -d '/' -f 1 | tail -c 2) == 1	
   do
-    sleep 1
+    sleep 5
     echo " "
     echo "***************************************************"
     echo "** waiting for mongodb service to be in up state **"

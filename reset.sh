@@ -1,4 +1,4 @@
-if docker service ls | grep mongo 
+if docker-machine ls | grep leader 
 then
   echo " "
   echo "****************************"
@@ -11,9 +11,25 @@ then
   docker service rm zuul
   docker service rm mongodb
   docker network rm demoSpring-net
-  eval "$(docker-machine env leader)"
-  docker container stop registry
-  docker container rm registry
+  echo "**********************************************************"
+  echo "**********************************************************"
+  echo "** Do you want to delete the whole swarm and machines ? **"
+  echo "** 1                                                yes **"
+  echo "** 2                                                 no **"
+  echo "**********************************************************"
+  echo "**********************************************************"
+  read rep
+
+  if [ $rep = 1 ]
+  then
+    eval "$(docker-machine env leader)"
+    docker container stop registry
+    docker container rm registry
+	rm -rf C:\registry
+    docker-machine stop worker1 worker2 leader
+    docker-machine rm worker1 worker2 leader
+  fi
+  
 else
   sh resetTnScont.sh
   echo " "

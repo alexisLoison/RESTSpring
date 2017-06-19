@@ -2,15 +2,25 @@ eval "$(docker-machine env leader)"
 
 leaderName=$(docker node ls | grep '*' | awk '{print $3}')
 registryPort=5000
-registryIP=$(hostname - I | awk '{print $1}')
+registryIP=$(docker node inspect $(docker node ls | grep '*' | awk '{print $3}') | jq -r .[].Status.Addr)
 
+echo "leaderName: " $leaderName
+echo "registryIP: " $registryIP
+echo "registryPort: " $registryPort
+
+echo " "
+echo "*******************************"
+echo "** building rabbitmq service **"
+echo "*******************************"
+echo " "
+docker service create --name rabbitmq --publish 15672:15672 --network demoSpring-net rabbitmq:3-management
 
 echo " "
 echo "*******************************************"
 echo "** waiting for registry to be available **"
 echo "*******************************************"
 echo " "
-until docker container ls | grep registry
+until docker service ls | grep registry
 do
   sleep 1
   echo "waiting..."
@@ -22,7 +32,7 @@ echo "** building Eureka service **"
 echo "******************************"
 echo " "
 gradle -b Eureka/build.gradle build
-docker build -t microservicedemo/eureka Eureka/
+docker build -t eureka Eureka/
 if docker service ls | grep eureka
 then
   echo " "
@@ -43,14 +53,14 @@ do
   sleep 1
   echo "waiting..."
 done
-docker tag microservicedemo/eureka $(registryIP):$(registryPort)/microservicedemo/eureka
-docker push $(registryIP):$(registryPort)/microservicedemo/eureka
+docker tag eureka localhost:$registryPort/eureka:latest
+docker push localhost:$registryPort/eureka:latest
 echo " "
 echo "*******************************"
 echo "** deploying Eureka service **"
 echo "*******************************"
 echo " "
-docker service create --name eureka --publish 8761:8761 --network demoSpring-net microservicedemo/eureka
+docker service create --name eureka --publish 8761:8761 --network demoSpring-net localhost:$registryPort/eureka:latest
 
 
 echo " "
@@ -59,7 +69,7 @@ echo "** building student service **"
 echo "******************************"
 echo " "
 gradle -b Students/build.gradle build
-docker build -t microservicedemo/student Students/
+docker build -t student Students/
 if docker service ls | grep student
 then
   echo " "
@@ -80,14 +90,14 @@ do
   sleep 1
   echo "waiting..."
 done
-docker tag microservicedemo/student $(registryIP):$(registryPort)/microservicedemo/student
-docker push $(registryIP):$(registryPort)/microservicedemo/student
+docker tag student localhost:$registryPort/student:latest
+docker push localhost:$registryPort/student:latest
 echo " "
 echo "*******************************"
 echo "** deploying student service **"
 echo "*******************************"
 echo " "
-docker service create --publish 1111:1111 --name student --network demoSpring-net microservicedemo/student
+docker service create --publish 1111:1111 --name student --env SPRING_PROFILES_ACTIVE=docker --network demoSpring-net localhost:$registryPort/student:latest
 
 
 echo " "
@@ -96,7 +106,7 @@ echo "** building teacher service **"
 echo "******************************"
 echo " "
 gradle -b Teachers/build.gradle build
-docker build -t microservicedemo/teacher Teachers/
+docker build -t teacher Teachers/
 if docker service ls | grep teacher
 then
   echo " "
@@ -117,14 +127,14 @@ do
   sleep 1
   echo "waiting..."
 done
-docker tag microservicedemo/teacher $(registryIP):$(registryPort)/microservicedemo/teacher
-docker push $(registryIP):$(registryPort)/microservicedemo/teacher
+docker tag teacher localhost:$registryPort/teacher:latest
+docker push localhost:$registryPort/teacher:latest
 echo " "
 echo "*******************************"
 echo "** deploying teacher service **"
 echo "*******************************"
 echo " "
-docker service create --publish 2222:2222 --name teacher --network demoSpring-net microservicedemo/teacher
+docker service create --publish 2222:2222 --name teacher --env SPRING_PROFILES_ACTIVE=docker --network demoSpring-net localhost:$registryPort/teacher:latest
 
 
 echo " "
@@ -133,7 +143,7 @@ echo "** building zuul service **"
 echo "***************************"
 echo " "
 gradle -b Zuul/build.gradle build
-docker build -t microservicedemo/zuul Zuul/
+docker build -t zuul Zuul/
 if docker service ls | grep zuul
 then
   echo " "
@@ -154,14 +164,14 @@ do
   sleep 1
   echo "waiting..."
 done
-docker tag microservicedemo/zuul $(registryIP):$(registryPort)/microservicedemo/zuul
-docker push $(registryIP):$(registryPort)/microservicedemo/zuul
+docker tag zuul localhost:$registryPort/zuul:latest
+docker push localhost:$registryPort/zuul:latest
 echo " "
 echo "****************************"
 echo "** deploying zuul service **"
 echo "****************************"
 echo " "
-docker service create --publish 8765:8765 --name zuul --constraint=node.hostname==$leaderName --network demoSpring-net microservicedemo/zuul
+docker service create --publish 8765:8765 --name zuul --env SPRING_PROFILES_ACTIVE=docker --constraint=node.hostname==$leaderName --network demoSpring-net localhost:$registryPort/zuul:latest
 
 sleep 1
 
