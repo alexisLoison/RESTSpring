@@ -45,6 +45,9 @@ spring:
   profiles: docker
   application:
     name: teacher
+#  cloud:
+#    config:
+#      uri: ${SPRING_CONFIG_URI:http://localhost:8888}
   rabbitmq:
     username: guest
     password: guest

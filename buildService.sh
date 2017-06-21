@@ -16,6 +16,20 @@ echo " "
 docker service create --name rabbitmq --publish 15672:15672 --network demoSpring-net rabbitmq:3-management
 
 echo " "
+echo "*******************************"
+echo "** building zookeeper service **"
+echo "*******************************"
+echo " "
+#docker service create --name zookeeper --network demoSpring-net --constraint=node.role==manager --publish 2181:2181 wurstmeister/zookeeper
+
+echo " "
+echo "*******************************"
+echo "** building kafka service **"
+echo "*******************************"
+echo " "
+#docker service create --name kafka --mode global -e 'KAFKA_PORT=9092' -e 'KAFKA_ADVERTISED_PORT=9092' -e 'KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092' -e 'KAFKA_ZOOKEEPER_CONNECT=tasks.zookeeper:2181' -e "HOSTNAME_COMMAND=ip r | awk '{ ip[\$3] = \$NF} END { print ( ip[\"eth0\"] ) }'" --publish 9092:9092 --network demoSpring-net wurstmeister/kafka
+
+echo " "
 echo "*******************************************"
 echo "** waiting for registry to be available **"
 echo "*******************************************"
@@ -97,7 +111,7 @@ echo "*******************************"
 echo "** deploying student service **"
 echo "*******************************"
 echo " "
-docker service create --publish 1111:1111 --name student --env SPRING_PROFILES_ACTIVE=docker --network demoSpring-net localhost:$registryPort/student:latest
+docker service create --publish 1111:1111 --name student --env SPRING_PROFILES_ACTIVE=docker --network demoSpring-net --constraint=node.hostname==$leaderName localhost:$registryPort/student:latest
 
 
 echo " "
@@ -134,7 +148,7 @@ echo "*******************************"
 echo "** deploying teacher service **"
 echo "*******************************"
 echo " "
-docker service create --publish 2222:2222 --name teacher --env SPRING_PROFILES_ACTIVE=docker --network demoSpring-net localhost:$registryPort/teacher:latest
+docker service create --publish 2222:2222 --name teacher --env SPRING_PROFILES_ACTIVE=docker --constraint=node.hostname==$leaderName --network demoSpring-net localhost:$registryPort/teacher:latest
 
 
 echo " "

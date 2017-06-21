@@ -30,8 +30,8 @@ public class config {
 		return new RestTemplate();
 	}
 	
-/*	//kafkaConfig from here to Sender method
-	@Value(value = "localhost:9092")
+	//kafkaConfig from here to Sender method
+	/*@Value(value = "localhost:9092")
 	private String bootstrapAddress;
 	
 	public ProducerFactory<String, String> producerFactory(){

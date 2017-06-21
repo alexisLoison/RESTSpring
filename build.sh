@@ -22,12 +22,21 @@ then
   docker exec -it mongodb sh
 elif [ $1 = "2" ]
 then
-  eval "$(docker-machine env leader)"
+  if uname -s | grep MINGW
+  then
+    eval "$(docker-machine env leader)"
+  else
+    if test "$(docker node inspect $(docker node ls | grep '*' | awk '{print$3}') | jq -r .[].Status.Addr)" == "$(hostname -I | awk '{print $1}')"
+    then
+      echo "please use the launcher in your docker swarm manager"
+      exit
+    fi
+  fi
   leaderName=$(docker node ls | grep '*' | awk '{print $3}')
   echo "leaderName: " $leaderName
   docker network create -d overlay --subnet=192.168.204.0/26 demoSpring-net
   docker service create --name mongodb --network demoSpring-net --publish 27017:27017/tcp mongo
-  until test $(docker service ls | grep mongodb | cut -d '/' -f 1 | tail -c 2) == 1	
+  until test $(docker service ls | grep mongodb | cut -d '/' -f 1 | tail -c 2) = 1	
   do
     sleep 5
     echo " "

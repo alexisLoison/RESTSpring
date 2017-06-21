@@ -30,7 +30,12 @@ then
 	if [ $ans = 1 ]
 	then
 	  sh build.sh 2
-	  sh buildService.sh
+	  if docker service ls | grep mongodb
+	  then
+	    sh buildService.sh
+      else
+	    exit
+      fi
 	else
 	  echo "please initialize a swarm"
 	fi

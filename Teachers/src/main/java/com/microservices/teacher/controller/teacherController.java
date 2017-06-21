@@ -53,7 +53,7 @@ public class teacherController {
 	final static String queueName = "spring.rpc.requests";
 
 	//Kafka integration
-/*	@Value(value = "testKafka")
+	/*@Value(value = "testKafka")
 	private String topicName;*/
 	
 	private DiscoveryClient dc;
@@ -67,7 +67,7 @@ public class teacherController {
 	teacherRepository teacherRepository;
 	
 	//KAFKA integration
-/*	@Autowired
+	/*@Autowired
 	private KafkaTemplate<String, String> kafkaTemplate;*/
 	
 	@RequestMapping(method = RequestMethod.POST)
@@ -109,7 +109,7 @@ public class teacherController {
 	}
 	
 	//Kafka Integration
-/*	@RequestMapping(method = RequestMethod.GET, value="/sendTeacher")
+	/*@RequestMapping(method = RequestMethod.GET, value="/sendTeacher")
 	public String sendTeacher(){
 		String data = getRandom();
 		ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(topicName, data);

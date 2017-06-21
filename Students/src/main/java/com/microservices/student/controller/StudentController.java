@@ -119,8 +119,8 @@ public class StudentController {
 	public void listen(String message){
 		System.out.println("Received Message in group test-consumer-group: " + message);
 		setTeacherkafka(message);
-	}*/
-	
+	}
+	*/
 	public void setTeacherkafka(String teacher){
 		int i;
 		for(i=0; i<studentRepository.findAll().size(); i++){
