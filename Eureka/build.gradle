@@ -36,7 +36,8 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-parent:' + springBootVersion,
             'org.springframework.boot:spring-boot-starter-test:' + springBootVersion,
             'org.springframework.cloud:spring-cloud-starter-eureka-server:' + springCloudStarterEurekaServerVersion,
-			'org.springframework.cloud:spring-cloud-starter-zuul:' + springCloudStarterEurekaServerVersion
+			'org.springframework.cloud:spring-cloud-starter-zuul:' + springCloudStarterEurekaServerVersion,
+			'org.springframework.cloud:spring-cloud-config-server:' + springCloudStarterEurekaServerVersion
 
     testCompile 'junit:junit:4.+'
 }

@@ -1,0 +1,1 @@
+keytool -genkeypair -alias key -keyalg RSA -dname "CN=microservices ex,OU=AITS,O=Renault,L=LePlessisRobinson,S=France,C=SE" -keypass changeme -keystore server.jks -storepass letmein -validity 730

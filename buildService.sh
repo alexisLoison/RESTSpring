@@ -39,7 +39,7 @@ do
   sleep 1
   echo "waiting..."
 done
-  
+
 echo " "
 echo "******************************"
 echo "** building Eureka service **"
@@ -76,6 +76,52 @@ echo "*******************************"
 echo " "
 docker service create --name eureka --publish 8761:8761 --network demoSpring-net localhost:$registryPort/eureka:latest
 
+echo " "
+echo "*****************************"
+echo "** building Config service **"
+echo "*****************************"
+echo " "
+gradle -b Config/build.gradle build
+docker build -t config Config/
+if docker service ls | grep config
+then
+  echo " "
+  echo "**************************************"
+  echo "** removing existing Config service **"
+  echo "**************************************"
+  echo " "
+  docker service rm config
+  sleep 1
+fi
+echo " "
+echo "******************************************"
+echo "** waiting for config image to be built **"
+echo "******************************************"
+echo " "
+until docker images | grep config
+do
+  sleep 1
+  echo "waiting..."
+done
+docker tag config localhost:$registryPort/config:latest
+docker push localhost:$registryPort/config:latest
+echo " "
+echo "******************************"
+echo "** deploying Config service **"
+echo "******************************"
+echo " "
+docker service create --name config --publish 8888:8888 --network demoSpring-net localhost:$registryPort/config:latest
+
+echo " "
+echo "********************************"
+echo "** waiting for config service **"
+echo "********************************"
+echo " "
+until docker service ls | grep config | grep 1/1
+do
+  sleep 1
+  echo "waiting..."
+done
 
 echo " "
 echo "******************************"

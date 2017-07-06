@@ -14,6 +14,7 @@ then
     docker service rm rabbitmq
     docker service rm kafka
     docker service rm mongodb
+	docker service rm config
     docker network rm demoSpring-net
     echo "**********************************************************"
     echo "**********************************************************"
@@ -63,6 +64,7 @@ else
     docker service rm rabbitmq
     docker service rm kafka
     docker service rm mongodb
+	docker service rm config
     docker network rm demoSpring-net
     echo "******************************************"
     echo "******************************************"

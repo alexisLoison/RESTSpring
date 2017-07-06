@@ -10,5 +10,6 @@ Consul/.gradle
 Consul/.settings
 Consul/
 descriptionDuTest.docx
+docker-compose.yml
 .classpath
 .project

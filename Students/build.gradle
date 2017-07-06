@@ -44,6 +44,7 @@ dependencies {
 			'org.springframework.cloud:spring-cloud-starter-hystrix:' + springCloudStarterEurekaVersion,
 			'org.springframework.cloud:spring-cloud-starter-bus-amqp:' + springCloudStarterEurekaVersion,
 			'org.springframework.cloud:spring-cloud-netflix-hystrix-amqp:' + springCloudStarterEurekaVersion,
+			'org.springframework.cloud:spring-cloud-config-server:' + springCloudStarterEurekaVersion,
 			'org.springframework.kafka:spring-kafka:' + springKafkaVersion,
 			'com.fasterxml.jackson.core:jackson-databind:2.8.8.1'
 			

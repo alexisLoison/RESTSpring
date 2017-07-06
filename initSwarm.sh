@@ -4,7 +4,7 @@ then
   then
     echo "machines are already ready"
   else
-    docker-machine create --engine-env 'DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"' --driver virtualbox leader
+    docker-machine create --engine-env 'DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --experimental=true"' --driver virtualbox leader
     eval "$(docker-machine env leader)"
     echo " "
     echo "******************************"
@@ -31,9 +31,9 @@ then
     done
 
     echo "building worker1 machine..."
-    docker-machine create --engine-env 'DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"' --driver virtualbox --engine-insecure-registry $ip_leader:5000 worker1
+    docker-machine create --engine-env 'DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --experimental=true"' --driver virtualbox --engine-insecure-registry $ip_leader:5000 worker1
     echo "building worker2 machine..."
-    docker-machine create --engine-env 'DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"' --driver virtualbox --engine-insecure-registry $ip_leader:5000 worker2
+    docker-machine create --engine-env 'DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock --experimental=true"' --driver virtualbox --engine-insecure-registry $ip_leader:5000 worker2
 
 
 
